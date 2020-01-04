@@ -1,0 +1,41 @@
+{
+  "name": "coc-actions",
+  "description": "Actions menu for coc.nvim",
+  "version": "1.0.0",
+  "publisher": "iamcco",
+  "engines": {
+    "coc": "^0.0.74"
+  },
+  "keywords": [
+    "coc.nvim",
+    "actions",
+    "quickFix"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/index.js",
+  "contributes": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamcco/coc-actions"
+  },
+  "bugs": {
+    "url": "https://github.com/iamcco/coc-actions"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf ./out",
+    "build": "webpack",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.2",
+    "coc.nvim": "^0.0.74",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "vscode-languageserver-protocol": "^3.14.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}

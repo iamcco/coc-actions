@@ -1,0 +1,26 @@
+{
+  "cSpell.words": [
+    "Autocmd",
+    "Interop",
+    "Pmenu",
+    "Prefered",
+    "arglist",
+    "blinkon",
+    "conceallevel",
+    "cursorcolumn",
+    "cursorline",
+    "esnext",
+    "foldcolumn",
+    "getcurpos",
+    "guicursor",
+    "iamcco",
+    "listchars",
+    "lnum",
+    "medicalterms",
+    "nvim",
+    "reforme",
+    "relativenumber",
+    "signcolumn",
+    "winhighlight"
+  ]
+}
