@@ -20,10 +20,11 @@ export class Actions implements Disposable {
     if (!this.codeActions.length) {
       return
     }
-    const width = this.codeActions.reduce((pre, cur) => {
+    let width = this.codeActions.reduce((pre, cur) => {
       return pre > cur.title.length ? pre : cur.title.length
     }, 0)
-    const lines = this.codeActions.map(item => item.title.padEnd(width, ' '))
+    const lines = this.codeActions.map(item => ` ${item.title.padEnd(width, ' ')} `)
+    width += 2
     const buf = await this.createBuf(lines)
     await this.createWin(buf, width, this.codeActions.length)
     this.addHighlight(0)
