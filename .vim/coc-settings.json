@@ -20,7 +20,12 @@
     "nvim",
     "reforme",
     "relativenumber",
+    "screenpos",
     "signcolumn",
-    "winhighlight"
+    "visualmode",
+    "wincol",
+    "winhighlight",
+    "winline",
+    "winnr"
   ]
 }

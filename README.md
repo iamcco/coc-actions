@@ -10,7 +10,20 @@ Actions menu for coc.nvim (neovim only)
 
 **Commands**
 
-- `:CocCommand actions.open`
+- `:CocCommand actions.open` for current cursor position
+
+**Mapping**
+
+Config as coc.nvim README
+
+``` vim
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+function! s:cocActionsOpenFromSelected(type) abort
+  execute 'CocCommand actions.open ' . a:type
+endfunction
+xmap <silent> <leader>a :<C-u>execute 'CocCommand actions.open ' . visualmode()<CR>
+nmap <silent> <leader>a :<C-u>set operatorfunc=<SID>cocActionsOpenFromSelected<CR>g@
+```
 
 ### Buy Me A Coffee ☕️
 

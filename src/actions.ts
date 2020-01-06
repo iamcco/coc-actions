@@ -1,5 +1,5 @@
 import {Window, Buffer, Disposable, Neovim, workspace, diagnosticManager, languages, CodeAction, commands, services} from "coc.nvim"
-import {CodeActionContext, ExecuteCommandParams } from "vscode-languageserver-protocol"
+import {CodeActionContext, ExecuteCommandParams, Range } from "vscode-languageserver-protocol"
 
 export class Actions implements Disposable {
   private nameSpaceFlag = 'cco-actions-line'
@@ -15,8 +15,8 @@ export class Actions implements Disposable {
     this.nvim = workspace.nvim
   }
 
-  public async openMenu() {
-    this.codeActions = await this.getCodeActions()
+  public async openMenu(mode?: string) {
+    this.codeActions = await this.getCodeActions(mode)
     if (!this.codeActions.length) {
       return
     }
@@ -26,7 +26,18 @@ export class Actions implements Disposable {
     const lines = this.codeActions.map(item => ` ${item.title.padEnd(width, ' ')} `)
     width += 2
     const buf = await this.createBuf(lines)
-    await this.createWin(buf, width, this.codeActions.length)
+
+    const screenHeight = await this.nvim.getOption('lines') as number
+    const winnr = await this.nvim.call('winnr')
+    const pos = await this.nvim.call('win_screenpos', winnr) as [number, number]
+    const winTop = await this.nvim.call('winline') as number
+    let maxHeight = screenHeight - pos[0] - winTop // cursor to bottom height
+    let anchor: 'NW' | 'SW' = 'NW'
+    if (lines.length > maxHeight && maxHeight / screenHeight < 0.5) {
+      maxHeight = screenHeight - maxHeight - 2
+      anchor = 'SW'
+    }
+    await this.createWin(buf, width, Math.min(maxHeight, lines.length), anchor)
     this.addHighlight(0)
     this.registerAutocmd()
   }
@@ -47,15 +58,15 @@ export class Actions implements Disposable {
     }
   }
 
-  private async createWin(buf: Buffer, width: number, height: number) {
+  private async createWin(buf: Buffer, width: number, height: number, anchor: 'NW' | 'SW') {
     this.guiCursor = await this.nvim.getOption('guicursor') as string
     const win: Window = await this.nvim.openFloatWindow(buf!, true, {
       focusable: true,
       relative: 'cursor',
-      anchor: 'NW',
+      anchor,
       height,
       width,
-      row: 1,
+      row: anchor === 'NW' ? 1 : 0,
       col: 0
     })
     this.nvim.pauseNotification();
@@ -170,13 +181,20 @@ export class Actions implements Disposable {
     }
   }
 
-  private async getCodeActions () {
+  private async getCodeActions (mode?: string) {
     const doc = await workspace.document
     if (!doc) {
       return []
     }
-    const position = await workspace.getCursorPosition()
-    let range = doc.getWordRangeAtPosition(position)
+
+    let range: Range | null = null
+    if (mode) {
+      range = await workspace.getSelectedRange(mode, doc)
+    }
+    if (!range) {
+      const position = await workspace.getCursorPosition()
+      range = doc.getWordRangeAtPosition(position)
+    }
     if (!range) {
       let lnum = await workspace.nvim.call('line', ['.'])
       range = {
