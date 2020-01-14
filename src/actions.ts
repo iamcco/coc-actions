@@ -1,5 +1,6 @@
 import {Window, Buffer, Disposable, Neovim, workspace, diagnosticManager, languages, CodeAction, commands, services} from "coc.nvim"
 import {CodeActionContext, ExecuteCommandParams, Range } from "vscode-languageserver-protocol"
+import gte from "semver/functions/gte"
 
 export class Actions implements Disposable {
   private nameSpaceFlag = 'cco-actions-line'
@@ -81,7 +82,9 @@ export class Actions implements Disposable {
     win.setOption('winhighlight', 'Normal:Pmenu,FoldColumn:Pmenu');
     win.setOption('listchars', 'trail: ,extends: ');
     win.setCursor([1, 1])
-    this.nvim.setOption('guicursor', `${this.guiCursor},a:ver1-Cursor-blinkon250-CocCursorTransparent/lCursor`)
+    if (gte(workspace.env.version, '0.5.0')) {
+      this.nvim.setOption('guicursor', `${this.guiCursor},a:ver1-CocCursorTransparent/lCursor`)
+    }
     await this.nvim.resumeNotification();
     this.win = win
     return win

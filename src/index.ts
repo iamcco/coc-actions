@@ -1,7 +1,10 @@
-import { ExtensionContext, commands } from "coc.nvim";
+import { ExtensionContext, commands, workspace } from "coc.nvim";
 import {Actions} from "./actions";
 
 export function activate(context: ExtensionContext) {
+  if (!workspace.isNvim) {
+    return workspace.showMessage('coc-actions only support neovim now!')
+  }
 
   const actions = new Actions()
 
