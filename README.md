@@ -17,13 +17,22 @@ Actions menu for coc.nvim (neovim only)
 Config as coc.nvim README
 
 ``` vim
-" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+" Remap for do codeAction of selected region
 function! s:cocActionsOpenFromSelected(type) abort
   execute 'CocCommand actions.open ' . a:type
 endfunction
 xmap <silent> <leader>a :<C-u>execute 'CocCommand actions.open ' . visualmode()<CR>
 nmap <silent> <leader>a :<C-u>set operatorfunc=<SID>cocActionsOpenFromSelected<CR>g@
 ```
+
+Then
+
+- `<leader>a` for the current selected range
+- `<leader>aw` for the current word
+- `<leader>aas` for the current sentence
+- `<leader>aap` for the current paragraph
+
+> `:h text-objects` to see more detail
 
 ### Buy Me A Coffee ☕️
 

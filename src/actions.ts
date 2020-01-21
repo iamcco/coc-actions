@@ -16,8 +16,13 @@ export class Actions implements Disposable {
     this.nvim = workspace.nvim
   }
 
-  public async openMenu(mode?: string) {
-    this.codeActions = await this.getCodeActions(mode)
+  public async openMenu(mode?: string, line?: string, col?: string) {
+    try {
+      this.codeActions = await this.getCodeActions(mode)
+    } catch (error) {
+      workspace.showMessage(`Get code actions error: ${error.message || error}`)
+      return
+    }
     if (!this.codeActions.length) {
       return
     }
@@ -37,6 +42,9 @@ export class Actions implements Disposable {
     if (lines.length > maxHeight && maxHeight / screenHeight < 0.5) {
       maxHeight = screenHeight - maxHeight - 2
       anchor = 'SW'
+    }
+    if (line && col) {
+      await this.nvim.call('cursor', [line, col])
     }
     await this.createWin(buf, width, Math.min(maxHeight, lines.length), anchor)
     this.addHighlight(0)

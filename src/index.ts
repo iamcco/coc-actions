@@ -10,8 +10,8 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(actions)
   context.subscriptions.push(
-    commands.registerCommand('actions.open', async (mode?: string) => {
-      actions.openMenu(mode)
+    commands.registerCommand('actions.open', async (mode?: string, line: string = '', col: string = '') => {
+      actions.openMenu(mode, line, col)
     })
   )
 }
