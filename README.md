@@ -34,6 +34,13 @@ Then
 
 > `:h text-objects` to see more detail
 
+## Settings
+
+- `coc-actions.hideCursor`: true
+  > Hide cursor when open actions menu
+- `coc-actions.showActionKind`: true
+  > Show action kind
+
 ### Buy Me A Coffee ☕️
 
 ![btc](https://img.shields.io/keybase/btc/iamcco.svg?style=popout-square)

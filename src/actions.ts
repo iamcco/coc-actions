@@ -29,9 +29,17 @@ export class Actions implements Disposable {
     let width = this.codeActions.reduce((pre, cur) => {
       return pre > cur.title.length ? pre : cur.title.length
     }, 0)
-    const lines = this.codeActions.map(item => ` ${item.title.padEnd(width, ' ')} `)
+    let titles = this.codeActions.map(item => ` ${item.title.padEnd(width, ' ')} `)
     width += 2
-    const buf = await this.createBuf(lines)
+    if (workspace.getConfiguration('coc-actions').get('showActionKind', true)) {
+      const typeWidth = this.codeActions.reduce((pre, cur) => {
+        return cur.kind && pre > cur.kind.length ? pre : cur.kind && cur.kind.length || 0
+      }, 0) + 2
+      const types = this.codeActions.map(item => `[${item.kind || '-'}]`.padStart(typeWidth, ' '))
+      titles = titles.map((title, idx) => `${title}${types[idx]} `)
+      width += 1 + typeWidth
+    }
+    const buf = await this.createBuf(titles)
 
     const screenHeight = await this.nvim.getOption('lines') as number
     const winnr = await this.nvim.call('winnr')
@@ -39,14 +47,14 @@ export class Actions implements Disposable {
     const winTop = await this.nvim.call('winline') as number
     let maxHeight = screenHeight - pos[0] - winTop // cursor to bottom height
     let anchor: 'NW' | 'SW' = 'NW'
-    if (lines.length > maxHeight && maxHeight / screenHeight < 0.5) {
+    if (titles.length > maxHeight && maxHeight / screenHeight < 0.5) {
       maxHeight = screenHeight - maxHeight - 2
       anchor = 'SW'
     }
     if (line && col) {
       await this.nvim.call('cursor', [line, col])
     }
-    await this.createWin(buf, width, Math.min(maxHeight, lines.length), anchor)
+    await this.createWin(buf, width, Math.min(maxHeight, titles.length), anchor)
     this.addHighlight(0)
     this.registerAutocmd()
   }
@@ -55,7 +63,7 @@ export class Actions implements Disposable {
     if (this.win) {
       this.win.valid && this.win.close(true)
       this.win = undefined
-      if (this.guiCursor) {
+      if (this.guiCursor && workspace.getConfiguration('coc-actions').get('hideCursor', true)) {
         this.nvim.setOption('guicursor', this.guiCursor)
         this.guiCursor = ''
       }
@@ -90,7 +98,7 @@ export class Actions implements Disposable {
     win.setOption('winhighlight', 'Normal:Pmenu,FoldColumn:Pmenu');
     win.setOption('listchars', 'trail: ,extends: ');
     win.setCursor([1, 1])
-    if (gte(workspace.env.version, '0.5.0')) {
+    if (gte(workspace.env.version, '0.5.0') && workspace.getConfiguration('coc-actions').get('hideCursor', true)) {
       this.nvim.setOption('guicursor', `${this.guiCursor},a:ver1-CocCursorTransparent/lCursor`)
     }
     await this.nvim.resumeNotification();

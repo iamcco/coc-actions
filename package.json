@@ -1,7 +1,7 @@
 {
   "name": "coc-actions",
   "description": "Actions menu for coc.nvim",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "publisher": "iamcco",
   "engines": {
     "coc": "^0.0.74"
@@ -15,7 +15,24 @@
     "*"
   ],
   "main": "./out/index.js",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "coc-actions configuration",
+      "properties": {
+        "coc-actions.hideCursor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Hide cursor when open actions menu"
+        },
+        "coc-actions.showActionKind": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show action kind"
+        }
+      }
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/iamcco/coc-actions"
