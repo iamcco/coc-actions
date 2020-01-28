@@ -40,6 +40,8 @@ Then
   > Hide cursor when open actions menu
 - `coc-actions.showActionKind`: true
   > Show action kind
+- `coc-actions.useCursorLine`: false
+  > Using cursorline for active line, this avoids tail whitespace
 
 ### Buy Me A Coffee ☕️
 

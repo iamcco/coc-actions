@@ -1,7 +1,7 @@
 {
   "name": "coc-actions",
   "description": "Actions menu for coc.nvim",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "iamcco",
   "engines": {
     "coc": "^0.0.74"
@@ -29,6 +29,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show action kind"
+        },
+        "coc-actions.useCursorLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Using cursorline for active line, this avoids tail whitespace"
         }
       }
     }

@@ -2,6 +2,8 @@ import {Window, Buffer, Disposable, Neovim, workspace, diagnosticManager, langua
 import {CodeActionContext, ExecuteCommandParams, Range } from "vscode-languageserver-protocol"
 import gte from "semver/functions/gte"
 
+const SETTING_SECTION = 'coc-actions'
+
 export class Actions implements Disposable {
   private nameSpaceFlag = 'cco-actions-line'
   private guiCursor = ''
@@ -11,9 +13,11 @@ export class Actions implements Disposable {
   private win: Window | undefined
   private buf: Buffer | undefined
   private isRegisterAutocmd: boolean = false
+  private isUseCursorLine: boolean = false
 
   constructor() {
     this.nvim = workspace.nvim
+    this.isUseCursorLine = workspace.getConfiguration(SETTING_SECTION).get('useCursorLine', false)
   }
 
   public async openMenu(mode?: string, line?: string, col?: string) {
@@ -31,13 +35,17 @@ export class Actions implements Disposable {
     }, 0)
     let titles = this.codeActions.map(item => ` ${item.title.padEnd(width, ' ')} `)
     width += 2
-    if (workspace.getConfiguration('coc-actions').get('showActionKind', true)) {
+    if (workspace.getConfiguration(SETTING_SECTION).get('showActionKind', true)) {
       const typeWidth = this.codeActions.reduce((pre, cur) => {
         return cur.kind && pre > cur.kind.length ? pre : cur.kind && cur.kind.length || 0
       }, 0) + 2
       const types = this.codeActions.map(item => `[${item.kind || '-'}]`.padStart(typeWidth, ' '))
       titles = titles.map((title, idx) => `${title}${types[idx]} `)
       width += 1 + typeWidth
+    }
+    // if use cursorLine trim tail white space
+    if (this.isUseCursorLine) {
+      titles = titles.map(title => title.trimEnd())
     }
     const buf = await this.createBuf(titles)
 
@@ -63,7 +71,7 @@ export class Actions implements Disposable {
     if (this.win) {
       this.win.valid && this.win.close(true)
       this.win = undefined
-      if (this.guiCursor && workspace.getConfiguration('coc-actions').get('hideCursor', true)) {
+      if (this.guiCursor && workspace.getConfiguration(SETTING_SECTION).get('hideCursor', true)) {
         this.nvim.setOption('guicursor', this.guiCursor)
         this.guiCursor = ''
       }
@@ -90,15 +98,15 @@ export class Actions implements Disposable {
     win.setOption('relativenumber', false);
     win.setOption('number', false);
     win.setOption('wrap', false);
-    win.setOption('cursorline', false);
+    win.setOption('cursorline', this.isUseCursorLine);
     win.setOption('cursorcolumn', false);
     win.setOption('conceallevel', 2);
     win.setOption('signcolumn', 'no');
     win.setOption('foldcolumn', 0);
-    win.setOption('winhighlight', 'Normal:Pmenu,FoldColumn:Pmenu');
+    win.setOption('winhighlight', 'Normal:Pmenu,FoldColumn:Pmenu,CursorLine:PmenuSel');
     win.setOption('listchars', 'trail: ,extends: ');
     win.setCursor([1, 1])
-    if (gte(workspace.env.version, '0.5.0') && workspace.getConfiguration('coc-actions').get('hideCursor', true)) {
+    if (gte(workspace.env.version, '0.5.0') && workspace.getConfiguration(SETTING_SECTION).get('hideCursor', true)) {
       this.nvim.setOption('guicursor', `${this.guiCursor},a:ver1-CocCursorTransparent/lCursor`)
     }
     await this.nvim.resumeNotification();
@@ -120,7 +128,7 @@ export class Actions implements Disposable {
   }
 
   private async addHighlight(line: number) {
-    if (!this.win || !this.buf) {
+    if (!this.win || !this.buf || this.isUseCursorLine) {
       return
     }
     const id = await this.nvim.createNamespace(this.nameSpaceFlag)
