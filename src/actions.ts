@@ -37,7 +37,7 @@ export class Actions implements Disposable {
     width += 2
     if (workspace.getConfiguration(SETTING_SECTION).get('showActionKind', true)) {
       const typeWidth = this.codeActions.reduce((pre, cur) => {
-        return cur.kind && pre > cur.kind.length ? pre : cur.kind && cur.kind.length || 0
+        return cur.kind && pre > cur.kind.length ? pre : cur.kind && cur.kind.length || 1
       }, 0) + 2
       const types = this.codeActions.map(item => `[${item.kind || '-'}]`.padStart(typeWidth, ' '))
       titles = titles.map((title, idx) => `${title}${types[idx]} `)
