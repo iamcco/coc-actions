@@ -164,6 +164,9 @@ export class Actions implements Disposable {
       workspace.registerLocalKeymap('n', '<esc>', () => {
         this.closeMenu()
       }, true),
+      workspace.registerLocalKeymap('n', '<C-c>', () => {
+        this.closeMenu()
+      }, true),
       workspace.registerAutocmd({
         event: 'BufLeave',
         callback: () => {
