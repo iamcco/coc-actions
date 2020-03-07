@@ -102,7 +102,6 @@ export class Actions implements Disposable {
     win.setOption('cursorcolumn', false);
     win.setOption('conceallevel', 2);
     win.setOption('signcolumn', 'no');
-    win.setOption('foldcolumn', 0);
     win.setOption('winhighlight', 'Normal:Pmenu,FoldColumn:Pmenu,CursorLine:PmenuSel');
     win.setOption('listchars', 'trail: ,extends: ');
     win.setCursor([1, 1])
