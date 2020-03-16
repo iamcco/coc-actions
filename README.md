@@ -1,6 +1,6 @@
 # coc-actions
 
-Actions menu for coc.nvim (neovim only)
+Actions menu for coc.nvim (neovim >= v0.4.0 only)
 
 ![image](https://user-images.githubusercontent.com/5492542/71774253-78717700-2fa6-11ea-9629-1e88d0b5114e.png)
 

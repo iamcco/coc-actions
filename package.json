@@ -1,7 +1,7 @@
 {
   "name": "coc-actions",
   "description": "Actions menu for coc.nvim",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "publisher": "iamcco",
   "engines": {
     "coc": "^0.0.74"

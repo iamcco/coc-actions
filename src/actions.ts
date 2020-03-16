@@ -166,6 +166,12 @@ export class Actions implements Disposable {
       workspace.registerLocalKeymap('n', '<C-c>', () => {
         this.closeMenu()
       }, true),
+      workspace.registerLocalKeymap('n', '<C-n>', () => {
+        this.nvim.feedKeys('j', 'n', false)
+      }, true),
+      workspace.registerLocalKeymap('n', '<C-p>', () => {
+        this.nvim.feedKeys('k', 'n', false)
+      }, true),
       workspace.registerAutocmd({
         event: 'BufLeave',
         callback: () => {
