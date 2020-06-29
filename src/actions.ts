@@ -72,6 +72,9 @@ export class Actions implements Disposable {
       this.win.valid && this.win.close(true)
       this.win = undefined
       if (this.guiCursor && workspace.getConfiguration(SETTING_SECTION).get('hideCursor', true)) {
+        if (gte(workspace.env.version, '0.5.0')) {
+          this.nvim.setOption('guicursor', `${this.guiCursor},a:ver1-Cursor/lCursor`)
+        }
         this.nvim.setOption('guicursor', this.guiCursor)
         this.guiCursor = ''
       }
