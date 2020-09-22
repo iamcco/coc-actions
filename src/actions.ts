@@ -1,5 +1,5 @@
 import {Window, Buffer, Disposable, Neovim, workspace, diagnosticManager, languages, CodeAction, commands, services} from "coc.nvim"
-import {CodeActionContext, ExecuteCommandParams, Range } from "vscode-languageserver-protocol"
+import {CancellationTokenSource, CodeActionContext, ExecuteCommandParams, Range} from "vscode-languageserver-protocol"
 import gte from "semver/functions/gte"
 
 const SETTING_SECTION = 'coc-actions'
@@ -242,7 +242,9 @@ export class Actions implements Disposable {
     }
     let diagnostics = diagnosticManager.getDiagnosticsInRange(doc.textDocument, range)
     let context: CodeActionContext = { diagnostics }
-    let codeActionsMap = await languages.getCodeActions(doc.textDocument, range, context)
+    let source = new CancellationTokenSource()
+    // @ts-ignore
+    let codeActionsMap = await languages.getCodeActions(doc.textDocument, range, context, source.token)
     if (!codeActionsMap) return []
     let codeActions: CodeAction[] = []
     for (let clientId of codeActionsMap.keys()) {
