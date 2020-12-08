@@ -1,10 +1,10 @@
 {
   "name": "coc-actions",
   "description": "Actions menu for coc.nvim",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "publisher": "iamcco",
   "engines": {
-    "coc": "^0.0.74"
+    "coc": "^0.0.79"
   },
   "keywords": [
     "coc.nvim",
@@ -55,11 +55,11 @@
     "@types/node": "^13.1.2",
     "@types/semver": "^6.2.0",
     "coc.nvim": "^0.0.79",
-    "semver": "^7.1.1",
+    "semver": "^7.3.4",
     "ts-loader": "^8.0.11",
     "typescript": "^4.1.2",
     "vscode-languageserver-protocol": "^3.15.3",
-    "webpack": "^5.6.0",
+    "webpack": "^5.10.0",
     "webpack-cli": "^4.2.0"
   }
 }

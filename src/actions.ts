@@ -9,8 +9,10 @@ import {
   CodeAction,
   commands,
   services,
+  StatusBarItem,
 } from "coc.nvim";
 import {
+  CancellationToken,
   CancellationTokenSource,
   CodeActionContext,
   ExecuteCommandParams,
@@ -30,17 +32,23 @@ export class Actions implements Disposable {
   private buf: Buffer | undefined;
   private isRegisterAutocmd: boolean = false;
   private isUseCursorLine: boolean = false;
+  private requestTokenSource: CancellationTokenSource | undefined;
+  private requestTimer: NodeJS.Timer | undefined;
+  private requestStatusItem: StatusBarItem
 
   constructor() {
     this.nvim = workspace.nvim;
     this.isUseCursorLine = workspace
       .getConfiguration(SETTING_SECTION)
       .get("useCursorLine", false);
+    this.requestStatusItem = workspace.createStatusBarItem(0, { progress: true })
   }
 
   public async openMenu(mode?: string, line?: string, col?: string) {
     try {
-      this.codeActions = await this.getCodeActions(mode);
+      this.codeActions = await this.withRequestToken('code action', (token) => {
+        return this.getCodeActions(token, mode);
+      }) || []
     } catch (error) {
       workspace.showMessage(
         `Get code actions error: ${error.message || error}`
@@ -318,7 +326,7 @@ export class Actions implements Disposable {
     }
   }
 
-  private async getCodeActions(mode?: string) {
+  private async getCodeActions(token: CancellationToken, mode?: string) {
     const doc = await workspace.document;
     if (!doc) {
       return [];
@@ -344,13 +352,12 @@ export class Actions implements Disposable {
       range
     );
     let context: CodeActionContext = { diagnostics };
-    let source = new CancellationTokenSource();
     let codeActionsMap = await languages.getCodeActions(
       doc.textDocument,
       range,
       context,
       // @ts-ignore
-      source.token
+      token
     );
     if (!codeActionsMap) return [];
     let codeActions: CodeAction[] = [];
@@ -370,6 +377,54 @@ export class Actions implements Disposable {
       return 0;
     });
     return codeActions;
+  }
+
+  private async withRequestToken<T>(
+    name: string,
+    fn: (token: CancellationToken) => Thenable<T>,
+    checkEmpty?: boolean
+  ): Promise<T | undefined> {
+    if (this.requestTokenSource) {
+      this.requestTokenSource.cancel()
+      this.requestTokenSource.dispose()
+    }
+    if (this.requestTimer) {
+      clearTimeout(this.requestTimer)
+    }
+    const statusItem = this.requestStatusItem
+    this.requestTokenSource = new CancellationTokenSource()
+    const { token } = this.requestTokenSource
+    token.onCancellationRequested(() => {
+      statusItem.text = `${name} request canceled`
+      statusItem.isProgress = false
+      this.requestTimer = setTimeout(() => {
+        statusItem.hide()
+      }, 500)
+    })
+    statusItem.isProgress = true
+    statusItem.text = `requesting ${name}`
+    statusItem.show()
+    let res: T | undefined
+    try {
+      res = await Promise.resolve(fn(token))
+    } catch (e) {
+      workspace.showMessage(e.message, 'error')
+    }
+    if (this.requestTokenSource) {
+      this.requestTokenSource.dispose()
+      this.requestTokenSource = undefined
+    }
+    if (token.isCancellationRequested) {
+      return undefined
+    }
+    statusItem.hide()
+    if (res == null) {
+      workspace.showMessage(`${name} provider not found!`, 'warning')
+    } else if (checkEmpty && Array.isArray(res) && res.length == 0) {
+      workspace.showMessage(`${name} not found`, 'warning')
+      return undefined
+    }
+    return res
   }
 
   dispose() {
